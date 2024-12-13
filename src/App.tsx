@@ -14,7 +14,7 @@ type RawDataBlogPost = {
 function App() {
   const [fetchPost, setFetchPost] = useState<BlogPost[]>();
   const [isFetching, setIsFetching] = useState(false);
-  const [error, setError] = useState<string>();
+  const [errorMsg, setErrorMsg] = useState<string>();
 
   useEffect(() => {
     async function fetchPost() {
@@ -23,17 +23,14 @@ function App() {
         const data = (await getHTTPrequest(
           `https://jsonplaceholder.typicode.com/posts`
         )) as RawDataBlogPost[];
+
         const blogPosts: BlogPost[] = data.map((rawPost) => {
-          return {
-            id: rawPost.id,
-            title: rawPost.title,
-            text: rawPost.body,
-          };
+          return { id: rawPost.id, title: rawPost.title, text: rawPost.body };
         });
         setFetchPost(blogPosts);
       } catch (err) {
         if (err instanceof Error) {
-          setError(`Failed to fetch posts: ${err.message}`);
+          setErrorMsg(`error occured: ${err.message}`);
         }
       }
       setIsFetching(false);
@@ -42,18 +39,22 @@ function App() {
   }, []);
 
   let content: ReactNode;
-  if (error) {
-    content = <ErrorMessage text={error} />;
-  }
+
   if (fetchPost) {
     content = <BlogPosts posts={fetchPost} />;
   }
+
   if (isFetching) {
     content = <p id="loading-fallback">Fetching posts...</p>;
   }
+
+  if (errorMsg) {
+    content = <ErrorMessage text={errorMsg} />;
+  }
+
   return (
     <main>
-      <img src={fetchingImg} alt="abstact image depicting a data post" />
+      <img src={fetchingImg} alt="abstract image depicting a data post" />
       {content}
     </main>
   );
